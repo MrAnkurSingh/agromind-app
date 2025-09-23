@@ -1,4 +1,4 @@
-<b>🌾 AgroMind: AI Farming Assistant<b>
+#🌾 AgroMind: AI Farming Assistant
 
 AgroMind is a full-stack, data-driven web application designed to empower farmers with an AI-powered personal assistant.
 It integrates real-time environmental data, market insights, and crop health monitoring to provide contextual, multi-modal agricultural advice in the farmer’s own language.
@@ -18,7 +18,8 @@ It integrates real-time environmental data, market insights, and crop health mon
 💡 Future Enhancements
 
 ✨ Core Features
-🔑 1. Secure User Authentication
+
+#1. Secure User Authentication
 
 Full registration & login system
 
@@ -28,7 +29,7 @@ Passwords securely hashed with bcryptjs
 
 Safe login validation via stored hashes
 
-🗣️ 2. Multi-Modal AI Chat Interface
+#🗣️ 2. Multi-Modal AI Chat Interface
 
 Interact using Text, Voice, or Images:
 
@@ -46,7 +47,7 @@ Preview & remove images before submission
 
 AI Responses: Structured JSON + always in user’s preferred language
 
-🤖 3. AI Backend & Prompt Engineering
+#🤖 3. AI Backend & Prompt Engineering
 
 Powered by OpenAI GPT-4o
 
@@ -56,7 +57,7 @@ Supports multi-modal queries (image + text)
 
 Language locked to user preference, with fallback via franc-min
 
-📊 4. Responsive Dashboard & Data Integration
+#📊 4. Responsive Dashboard & Data Integration
 
 My Crops Card – CRUD crops, linked by farmer_id
 
@@ -68,13 +69,13 @@ Interactive Soil Map – Draw polygons/rectangles/circles on fields with Leaflet
 
 Fetch SoilGrids data (pH, organic carbon, clay content)
 
-🛠️ Technology Stack & APIs
+#🛠️ Technology Stack & APIs
 
 Frontend: HTML5, CSS3, Vanilla JavaScript
 Backend: Node.js, Express.js
 Database: MongoDB (Mongoose)
 
-Libraries & Tools:
+#Libraries & Tools:
 
 bcryptjs → Password hashing
 
@@ -84,7 +85,7 @@ Leaflet.js → Interactive maps
 
 Leaflet.draw → Field drawing tools
 
-APIs Integrated:
+#APIs Integrated:
 
 🌦️ OpenWeatherMap – Weather
 
@@ -96,7 +97,7 @@ APIs Integrated:
 
 🎯 Why AgroMind?
 
-AgroMind is more than a farming tool—it’s a personal AI assistant for farmers.
+#AgroMind is more than a farming tool—it’s a personal AI assistant for farmers.
 
 ✅ Data-driven advice
 
