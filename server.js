@@ -6,7 +6,6 @@ import { OpenAI } from 'openai';
 import fetch from 'node-fetch';
 import { franc } from 'franc-min';
 import bcrypt from 'bcryptjs';
-import opencage from 'opencage-api-client';
 
 // Models
 import Farmer from './models/farmerModel.js';
@@ -74,11 +73,11 @@ app.get('/api/dashboard/:farmer_id', async (req, res) => {
             WeatherData.findOne({ farmer_id }),
             MarketData.findOne({ farmer_id }),
             SoilGridsData.findOne({ farmer_id }),
-            Crop.find({ farmer_id }).sort({ plantingDate: -1 }) // Also fetch crop data
+            Crop.find({ farmer_id }).sort({ plantingDate: -1 }) 
         ]);
 
         if (!farmer) return res.status(404).json({ error: 'Farmer not found' });
-        res.json({ farmer, weather, market, soil, crops }); // Include crops in the response
+        res.json({ farmer, weather, market, soil, crops });
     } catch (error) {
         res.status(500).json({ error: 'Server error fetching dashboard data' });
     }
@@ -151,7 +150,33 @@ app.post('/api/weather/sync', async (req, res) => {
 });
 
 
-import opencage from 'opencage-api-client';
+
+app.post('/api/market/sync', async (req, res) => {
+    try {
+        const { farmer_id, lat, lon } = req.body;
+        if (!farmer_id || !lat || !lon) return res.status(400).json({ error: 'Location required.' });
+
+        const geoData = await opencage.geocode({ q: `${lat}, ${lon}`, key: process.env.OPENCAGE_API_KEY });
+        if (!geoData.results || geoData.results.length === 0) throw new Error('Could not determine state.');
+        
+        const state = geoData.results[0].components.state;
+        const liveMarketData = await syncMarketData(state); 
+        
+        if (liveMarketData) {
+            const updated = await MarketData.findOneAndUpdate(
+                { farmer_id }, { ...liveMarketData }, { upsert: true, new: true }
+            );
+            res.json(updated);
+        } else {
+            // Gracefully handle failure
+            res.json({ error: 'Failed to sync market data' });
+        }
+    } catch (error) {
+        console.error("Error in market sync:", error);
+        res.json({ error: 'Server error during market sync' }); // Send a normal JSON response
+    }
+});
+
 app.post('/api/soilgrids-stats', async (req, res) => {
     const { farmer_id, bbox } = req.body;
     const properties = ['phh2o', 'soc', 'clay'];
@@ -178,7 +203,7 @@ app.post('/api/soilgrids-stats', async (req, res) => {
         );
         res.json(updatedSoilData);
     } catch (error) {
-        // Restored error logging
+        
         console.error('SoilGrids API Error:', error);
         res.status(500).json({ error: 'Failed to fetch SoilGrids data' });
     }
@@ -325,3 +350,6 @@ Farmer asks: "${query}"
     }
 });
 
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});

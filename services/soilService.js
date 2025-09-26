@@ -4,10 +4,10 @@ const getSoilData = async (lat, lon) => {
     try {
        
         const xmlRequestBody = `
-        <wps:Execute xmlns:wps="http://www.opengis.net/wps/1.0.0" 
-            xmlns:ows="http://www.opengis.net/ows/1.1" 
-            xmlns:xlink="http://www.w3.org/1999/xlink" 
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        <wps:Execute xmlns:wps="https://www.opengis.net/wps/1.0.0" 
+            xmlns:ows="https://www.opengis.net/ows/1.1" 
+            xmlns:xlink="https://www.w3.org/1999/xlink" 
+            xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" 
             service="WPS" 
             version="1.0.0">
             <ows:Identifier>gs:SoilWPS</ows:Identifier>
@@ -48,7 +48,7 @@ const getSoilData = async (lat, lon) => {
 
         const data = await response.json();
         
-        // Extracting the detailed information from the JSON response
+       
         if (data && data.Soil_Data) {
             const soilInfo = data.Soil_Data[0];
             return {
