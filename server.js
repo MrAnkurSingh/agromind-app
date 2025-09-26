@@ -6,6 +6,7 @@ import { OpenAI } from 'openai';
 import fetch from 'node-fetch';
 import { franc } from 'franc-min';
 import bcrypt from 'bcryptjs';
+import opencage from 'opencage-api-client';
 
 // Models
 import Farmer from './models/farmerModel.js';
@@ -150,25 +151,7 @@ app.post('/api/weather/sync', async (req, res) => {
 });
 
 
-
-app.post('/api/market/sync', async (req, res) => {
-    try {
-        const { farmer_id } = req.body;
-        const farmer = await Farmer.findById(farmer_id);
-        const liveMarketData = await syncMarketData(farmer.region);
-        if (liveMarketData) {
-            const updated = await MarketData.findOneAndUpdate(
-                { farmer_id }, { ...liveMarketData }, { upsert: true, new: true }
-            );
-            res.json(updated);
-        } else {
-            res.status(500).json({ error: 'Failed to sync market data' });
-        }
-    } catch (error) {
-        res.status(500).json({ error: 'Server error' });
-    }
-});
-
+import opencage from 'opencage-api-client';
 app.post('/api/soilgrids-stats', async (req, res) => {
     const { farmer_id, bbox } = req.body;
     const properties = ['phh2o', 'soc', 'clay'];

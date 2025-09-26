@@ -362,26 +362,27 @@
             );
         }
 
-        async function syncWeatherAndMarket(lat, lon) {
-            const weatherBody = { farmer_id: farmerId };
-            if (lat && lon) {
-                weatherBody.lat = lat;
-                weatherBody.lon = lon;
-            } else { return; }
+       async function syncWeatherAndMarket(lat, lon) {
+            if (!lat || !lon) return;
+
+            // Weather sync is correct
+            const weatherBody = { farmer_id: farmerId, lat, lon };
             fetch('/api/weather/sync', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(weatherBody)
             }).then(res => res.json()).then(data => {
-                if (data && !data.error) updateWeatherCard(data);
+                if (data && !data.error) updateWeatherCard(data, document.getElementById('weather-content'));
             });
-
-            const marketBody = { farmer_id: farmerId };
+            
+            // THIS IS THE FIX: Send the live lat/lon to the market sync endpoint as well
+            const marketBody = { farmer_id: farmerId, lat, lon };
             fetch('/api/market/sync', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(marketBody)
             }).then(res => res.json()).then(data => {
-                if (data && !data.error) updateMarketList(data);
+                if (data && !data.error) updateMarketList(data, document.getElementById('market-list'));
             });
-        }
 
+        }
+        
         async function fetchSoilGridsData(bbox) {
             try {
                 const response = await fetch('/api/soilgrids-stats', {
