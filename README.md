@@ -1,112 +1,88 @@
-<b>🌾 AgroMind: AI Farming Assistant<b>
+# 🌾 AgroMind: AI Farming Assistant
 
-AgroMind is a full-stack, data-driven web application designed to empower farmers with an AI-powered personal assistant.
+AgroMind is a full-stack, data-driven web application designed to empower farmers with an AI-powered personal assistant.  
 It integrates real-time environmental data, market insights, and crop health monitoring to provide contextual, multi-modal agricultural advice in the farmer’s own language.
 
-📌 Table of Contents
+---
 
-✨ Core Features
+## 📌 Table of Contents
+- [✨ Core Features](#-core-features)  
+- [🛠️ Technology Stack & APIs](#️-technology-stack--apis)  
+- [🎯 Why AgroMind](#-why-agromind)  
+- [📦 Installation & Setup](#-installation--setup)  
+- [📸 Screenshots / Demo](#-screenshots--demo)  
+- [💡 Future Enhancements](#-future-enhancements)  
+- [⚖️ License](#-license)  
 
-🛠️ Technology Stack & APIs
+---
 
-🎯 Why AgroMind
+## ✨ Core Features
 
-📦 Installation & Setup
+### 🔑 1. Secure User Authentication
+- Full registration & login system  
+- Language preference selection during signup  
+- Passwords securely hashed with **bcryptjs**  
+- Safe login validation via stored hashes  
 
-📸 Screenshots / Demo
+### 🗣️ 2. Multi-Modal AI Chat Interface
+Interact using **Text, Voice, or Images**:  
+- **Text Input** → Standard input bar  
+- **Voice Input** → Multi-language transcription with Web Speech API (hi-IN, en-IN, bn-IN, ta-IN…)  
+- **Image Input** →  
+  - Upload photos or use live camera  
+  - **Crop Disease Detection**: Detect diseases, deficiencies, pests directly from images  
+  - Preview & remove images before submission  
 
-💡 Future Enhancements
+**AI Responses**: Structured JSON + always in user’s preferred language  
 
-✨ Core Features
-🔑 1. Secure User Authentication
+### 🤖 3. AI Backend & Prompt Engineering
+- Powered by **OpenAI GPT-4o**  
+- Injects ground truth data (Weather, Soil, Market, Crops) before every query  
+- Supports multi-modal queries (image + text)  
+- Language locked to user preference, with fallback via **franc-min**  
 
-Full registration & login system
+### 📊 4. Responsive Dashboard & Data Integration
+- **My Crops Card** – CRUD crops, linked by farmer_id  
+- **Weather Forecast** – 5-day forecast via OpenWeatherMap  
+- **Mandi Prices** – Live market prices from Data.gov.in API  
+- **Interactive Soil Map** – Draw polygons/rectangles/circles on fields with **Leaflet.js + Leaflet.draw**  
+- Fetch **SoilGrids** data (pH, organic carbon, clay content)  
 
-Language preference selection during signup
+---
 
-Passwords securely hashed with bcryptjs
+## 🛠️ Technology Stack & APIs
 
-Safe login validation via stored hashes
+**Frontend**: HTML5, CSS3, Vanilla JavaScript  
+**Backend**: Node.js, Express.js  
+**Database**: MongoDB (Mongoose)  
 
-🗣️ 2. Multi-Modal AI Chat Interface
+**Libraries & Tools**:  
+- bcryptjs → Password hashing  
+- franc-min → Language detection  
+- Leaflet.js → Interactive maps  
+- Leaflet.draw → Field drawing tools  
 
-Interact using Text, Voice, or Images:
+**APIs Integrated**:  
+- 🌦️ OpenWeatherMap – Weather  
+- 📈 Data.gov.in – Market prices  
+- 🌍 SoilGrids – Soil analysis  
+- 🧠 OpenAI GPT-4o – AI responses & crop disease detection  
 
-Text Input: Standard input bar
+---
 
-Voice Input: Multi-language transcription with Web Speech API (hi-IN, en-IN, bn-IN, ta-IN…)
+## 🎯 Why AgroMind?
+AgroMind is more than a farming tool—it’s a **personal AI assistant for farmers**.  
 
-Image Input:
+✅ Data-driven advice  
+✅ Disease & soil analysis  
+✅ Localized, multi-language support  
+✅ Fully responsive dashboard  
 
-Upload photos or use live camera
+---
 
-Crop Disease Detection: Detect diseases, deficiencies, pests directly from images
+## 📦 Installation & Setup
 
-Preview & remove images before submission
-
-AI Responses: Structured JSON + always in user’s preferred language
-
-🤖 3. AI Backend & Prompt Engineering
-
-Powered by OpenAI GPT-4o
-
-Injects ground truth data (Weather, Soil, Market, Crops) before every query
-
-Supports multi-modal queries (image + text)
-
-Language locked to user preference, with fallback via franc-min
-
-📊 4. Responsive Dashboard & Data Integration
-
-My Crops Card – CRUD crops, linked by farmer_id
-
-Weather Forecast – 5-day forecast via OpenWeatherMap
-
-Mandi Prices – Live market prices from Data.gov.in API
-
-Interactive Soil Map – Draw polygons/rectangles/circles on fields with Leaflet.js + Leaflet.draw
-
-Fetch SoilGrids data (pH, organic carbon, clay content)
-
-🛠️ Technology Stack & APIs
-
-Frontend: HTML5, CSS3, Vanilla JavaScript
-Backend: Node.js, Express.js
-Database: MongoDB (Mongoose)
-
-Libraries & Tools:
-
-bcryptjs → Password hashing
-
-franc-min → Language detection
-
-Leaflet.js → Interactive maps
-
-Leaflet.draw → Field drawing tools
-
-APIs Integrated:
-
-🌦️ OpenWeatherMap – Weather
-
-📈 Data.gov.in – Market prices
-
-🌍 SoilGrids – Soil analysis
-
-🧠 OpenAI GPT-4o – AI responses & crop disease detection
-
-🎯 Why AgroMind?
-
-AgroMind is more than a farming tool—it’s a personal AI assistant for farmers.
-
-✅ Data-driven advice
-
-✅ Disease & soil analysis
-
-✅ Localized, multi-language support
-
-✅ Fully responsive dashboard
-
-📦 Installation & Setup
+```bash
 # 1. Clone repo
 git clone https://github.com/MrAnkurSingh/agromind-app
 
@@ -123,23 +99,3 @@ MONGO_URI=your_mongo_uri
 
 # 5. Start server
 npm start
-
-
-Then visit 👉 http://localhost:3000
-
-📸 Screenshots / Demo
-
-(Add screenshots or GIFs of your dashboard, AI chat, and soil map here)
-
-💡 Future Enhancements
-
-📱 Mobile app integration
-
-🔌 Offline data caching for rural areas
-
-👨‍👩‍👧 Multi-user collaboration for shared farms
-
-⚖️ License
-
-This project is licensed under the MIT License – see LICENSE
- file for details.
