@@ -208,7 +208,7 @@
                     const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
                     dayElement.innerHTML = `
                         <div><strong>${dayName}</strong></div>
-                        <img src="http://openweathermap.org/img/wn/${day.icon}.png" alt="${day.description}">
+                        <img src="https://openweathermap.org/img/wn/${day.icon}.png" alt="${day.description}">
                         <div>${day.description}</div>
                         <div class="forecast-temp">${Math.round(day.temp_max)}° / ${Math.round(day.temp_min)}°</div>
                     `;
