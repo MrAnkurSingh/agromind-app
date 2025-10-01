@@ -7,7 +7,6 @@ export const syncWeatherData = async (lat, lon) => {
     const currentUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric`;
 
     try {
-        // Fetch both forecast and current weather data at the same time
         const [forecastResponse, currentResponse] = await Promise.all([
             fetch(forecastUrl),
             fetch(currentUrl)
@@ -19,7 +18,7 @@ export const syncWeatherData = async (lat, lon) => {
         const forecastData = await forecastResponse.json();
         const currentData = await currentResponse.json();
 
-        // Process the 5-day forecast (same as before)
+    
         const dailyForecasts = {};
         forecastData.list.forEach(item => {
             const date = item.dt_txt.split(' ')[0];
@@ -47,7 +46,7 @@ export const syncWeatherData = async (lat, lon) => {
             };
         });
 
-        // Combine all data into one object
+        
         return {
             region: forecastData.city.name,
             current: {

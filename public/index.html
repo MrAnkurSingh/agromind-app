@@ -220,19 +220,22 @@
         }
 
         function updateMarketList(market) {
-            marketList.innerHTML = '';
-            if (market && market.top_prices && market.top_prices.length > 0) {
-                market.top_prices.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.innerHTML = `<span class="label">${item.commodity}</span> <span class="value">₹${item.modal_price}</span>`;
-                    marketList.appendChild(listItem);
-                });
-            } else {
-                const listItem = document.createElement('li');
-                listItem.textContent = 'Prices for your area are not listed yet.';
-                marketList.appendChild(listItem);
-            }
-        }
+    marketList.innerHTML = '';
+    if (market && (market.top_prices || market.prices)) {
+        const prices = market.top_prices || market.prices;
+        prices.forEach(item => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                <span class="label">${item.commodity || "Unknown"}</span> 
+                <span class="value">₹${item.modal_price || item.price || "-"}</span>
+            `;
+            marketList.appendChild(listItem);
+        });
+    } else {
+        marketList.innerHTML = '<li>No prices available at the moment.</li>';
+    }
+}
+
           
 
         function updateCropCard(crops, cropList) {
@@ -240,11 +243,11 @@
             if (crops && crops.length > 0) {
                 crops.forEach(crop => {
                     const listItem = document.createElement('li');
-                    listItem.setAttribute('data-id', crop._id); // Add data-id for easy access
+                    listItem.setAttribute('data-id', crop._id); 
                     
                     const plantDate = new Date(crop.plantingDate);
                     const formattedDate = plantDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-                    // ISO format (YYYY-MM-DD) is needed for the date input value
+
                     const isoDate = plantDate.toISOString().split('T')[0];
 
                     listItem.innerHTML = `
@@ -338,15 +341,24 @@
 
 
         async function fetchDashboardData() {
-            try {
-                const response = await fetch(`/api/dashboard/${farmerId}`);
-                if (!response.ok) return null;
-                return await response.json();
-            } catch (error) {
-                console.error("Error fetching dashboard data:", error);
-                return null;
+    try {
+        const response = await fetch(`/api/dashboard/${farmerId}`);
+        if (!response.ok) {
+            console.error("Dashboard Fetch Error:", response.status, response.statusText);
+            // THIS IS THE FIX: If the user is not found, log them out.
+            if (response.status === 404 || response.status === 400) {
+                alert("Your session has expired or is invalid. Please log in again.");
+                localStorage.removeItem('farmer_id');
+                window.location.href = '/login.html';
             }
+            return null;
         }
+        return await response.json();
+    } catch (error) { 
+        console.error("Critical Error fetching dashboard data:", error); 
+        return null; 
+    }
+}
 
         async function detectAndSyncLocation() {
             navigator.geolocation.getCurrentPosition(
@@ -363,24 +375,33 @@
         }
 
         async function syncWeatherAndMarket(lat, lon) {
-            const weatherBody = { farmer_id: farmerId };
-            if (lat && lon) {
-                weatherBody.lat = lat;
-                weatherBody.lon = lon;
-            } else { return; }
-            fetch('/api/weather/sync', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(weatherBody)
-            }).then(res => res.json()).then(data => {
-                if (data && !data.error) updateWeatherCard(data);
-            });
+    if (!lat || !lon) {
+        console.log("Location not available, skipping data sync.");
+        return; 
+    }
 
-            const marketBody = { farmer_id: farmerId };
-            fetch('/api/market/sync', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(marketBody)
-            }).then(res => res.json()).then(data => {
-                if (data && !data.error) updateMarketList(data);
-            });
+    const body = { farmer_id: farmerId, lat, lon };
+
+    fetch('/api/weather/sync', {
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(body)
+    }).then(res => res.json()).then(data => {
+        if (data && !data.error) {
+            updateWeatherCard(data);
         }
+    });
+    
+    fetch('/api/market/sync', {
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(body)
+    }).then(res => res.json()).then(data => {
+        if (data && !data.error) {
+            updateMarketList(data);
+        }
+    });
+}
 
         async function fetchSoilGridsData(bbox) {
             try {
@@ -499,14 +520,12 @@
 
     const cropId = target.dataset.id;
 
-    // YOUR DEBUGGING SUGGESTION:
     console.log('Attempting to act on crop with ID:', cropId);
     if (!cropId) {
         alert('Error: Could not find the Crop ID. Cannot proceed.');
         return;
     }
     
-    // Handle DELETE
     if (target.classList.contains('delete-btn')) {
         if (confirm('Are you sure you want to delete this crop?')) {
             await fetch(`/api/crops/${cropId}`, { method: 'DELETE' });
@@ -515,7 +534,6 @@
         }
     }
 
-    // Handle EDIT / SAVE
     if (target.classList.contains('edit-btn')) {
         const listItem = target.closest('li');
         const detailsDiv = listItem.querySelector('.crop-details');
@@ -542,7 +560,7 @@
                 <input type="text" class="edit-name-input" value="${currentName}">
                 <input type="date" class="edit-date-input" value="${isoDate}">
             `;
-            target.innerHTML = '<i class="ri-check-line"></i>'; // Change icon to Save
+            target.innerHTML = '<i class="ri-check-line"></i>'; 
         }
     }
 });
@@ -569,7 +587,6 @@
 
 
 
-        // This function ensures the `voices` array is populated
         function populateVoiceList() {
             if(typeof speechSynthesis === 'undefined') {
                 return;
@@ -601,7 +618,7 @@
 
                 const data = await response.json();
                 const responseText = data.response;
-                const responseLang = data.language; // This should be 'hi-IN' from the server
+                const responseLang = data.language; 
 
                 aiResponseElem.textContent = responseText;
                 
@@ -610,25 +627,20 @@
                 textInput.placeholder = "Ask about your farm or an image...";
                 imageUploadInput.value = '';
 
-                // --- YOUR SUGGESTED VOICE LOGIC ---
                 const utterance = new SpeechSynthesisUtterance(responseText);
-                // Force Hindi language
                 utterance.lang = "hi-IN";
                 
-                // Try to pick a female Hindi voice
                 let chosenVoice = voices.find(v => v.lang === "hi-IN" && v.name.toLowerCase().includes("female"));
                 
-                // If not found, just take any Hindi voice
                 if (!chosenVoice) {
                     chosenVoice = voices.find(v => v.lang === "hi-IN");
                 }
                 
-                // Apply chosen voice if available
                 if (chosenVoice) {
                     utterance.voice = chosenVoice;
                 }
                 
-                // Optionally adjust pitch/rate to sound more natural
+             
                 utterance.pitch = 1.1;
                 utterance.rate = 1;
 
@@ -641,18 +653,18 @@
         }
         const muteBtn = document.getElementById("muteBtn");
 let isMuted = false;
-let originalSpeak = speechSynthesis.speak; // keep original
+let originalSpeak = speechSynthesis.speak; 
 
 muteBtn.addEventListener("click", () => {
   isMuted = !isMuted;
 
   if (isMuted) {
-    speechSynthesis.cancel();          // stop any current speech
-    speechSynthesis.speak = function() {}; // block all future speech
-    muteBtn.textContent = "🔇";        // update button
+    speechSynthesis.cancel();         
+    speechSynthesis.speak = function() {}; 
+    muteBtn.textContent = "🔇";        
   } else {
-    speechSynthesis.speak = originalSpeak; // restore normal speech
-    muteBtn.textContent = "🔊";        // update button
+    speechSynthesis.speak = originalSpeak;
+    muteBtn.textContent = "🔊";       
   }
 });
         

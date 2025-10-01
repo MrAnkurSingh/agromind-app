@@ -31,7 +31,8 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('Successfully connected to MongoDB Atlas!'))
     .catch(err => console.error('Connection error', err));
 
-// --- Auth Endpoints ---
+
+
 app.post('/api/register', async (req, res) => {
     try {
         const { name, username, password, region, language } = req.body;
@@ -63,11 +64,11 @@ app.post('/api/login', async (req, res) => {
 });
 
 
-// --- Dashboard & Data Sync Endpoints ---
+
 app.get('/api/dashboard/:farmer_id', async (req, res) => {
     try {
         const { farmer_id } = req.params;
-        // Fetch all data in parallel for efficiency
+       
         const [farmer, weather, market, soil, crops] = await Promise.all([
             Farmer.findById(farmer_id),
             WeatherData.findOne({ farmer_id }),
@@ -83,7 +84,7 @@ app.get('/api/dashboard/:farmer_id', async (req, res) => {
     }
 });
 
-// --- NEW CROP API ENDPOINTS ---
+
 app.get('/api/crops/:farmer_id', async (req, res) => {
     try {
         const crops = await Crop.find({ farmer_id: req.params.farmer_id }).sort({ plantingDate: -1 });
@@ -134,9 +135,14 @@ app.delete('/api/crops/:crop_id', async (req, res) => {
 app.post('/api/weather/sync', async (req, res) => {
     try {
         const { farmer_id, lat, lon } = req.body;
+        if (!farmer_id || !lat || !lon) return res.status(400).json({ error: 'Missing required data.' });
+        
         const liveWeatherData = await syncWeatherData(lat, lon);
         if (liveWeatherData && !liveWeatherData.error) {
             const farmer = await Farmer.findById(farmer_id);
+      
+            if (!farmer) return res.status(404).json({ error: 'Farmer not found during sync.' });
+            
             const updated = await WeatherData.findOneAndUpdate(
                 { farmer_id }, { ...liveWeatherData, region: farmer.region }, { upsert: true, new: true }
             );
@@ -148,34 +154,50 @@ app.post('/api/weather/sync', async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
-
+ 
 
 
 app.post('/api/market/sync', async (req, res) => {
     try {
+        
         const { farmer_id, lat, lon } = req.body;
-        if (!farmer_id || !lat || !lon) return res.status(400).json({ error: 'Location required.' });
 
-        const geoData = await opencage.geocode({ q: `${lat}, ${lon}`, key: process.env.OPENCAGE_API_KEY });
-        if (!geoData.results || geoData.results.length === 0) throw new Error('Could not determine state.');
+        if (!farmer_id || !lat || !lon) {
+            return res.status(400).json({ error: 'Live location is required for market data.' });
+        }
+
         
-        const state = geoData.results[0].components.state;
-        const liveMarketData = await syncMarketData(state); 
+           
         
+        const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+        const geoData = await geoRes.json();
+
+        if (!geoData.address || !geoData.address.state) {
+            throw new Error('Could not determine state.');
+        }
+
+        const state = geoData.address.state; 
+
+       
+        const liveMarketData = await syncMarketData(state);
+
         if (liveMarketData) {
             const updated = await MarketData.findOneAndUpdate(
-                { farmer_id }, { ...liveMarketData }, { upsert: true, new: true }
+                { farmer_id },
+                { ...liveMarketData },
+                { upsert: true, new: true }
             );
             res.json(updated);
         } else {
-            // Gracefully handle failure
             res.json({ error: 'Failed to sync market data' });
         }
+
     } catch (error) {
         console.error("Error in market sync:", error);
-        res.json({ error: 'Server error during market sync' }); // Send a normal JSON response
+        res.status(500).json({ error: 'Server error during market sync' });
     }
 });
+
 
 app.post('/api/soilgrids-stats', async (req, res) => {
     const { farmer_id, bbox } = req.body;
@@ -209,7 +231,7 @@ app.post('/api/soilgrids-stats', async (req, res) => {
     }
 });
 
-// --- Main AI Query Endpoint ---
+
 app.post('/api/query', async (req, res) => {
     try {
         const { farmer_id, query, image } = req.body;

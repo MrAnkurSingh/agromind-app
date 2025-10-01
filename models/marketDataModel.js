@@ -1,13 +1,15 @@
 import mongoose from 'mongoose';
 
 const marketDataSchema = new mongoose.Schema({
-    farmer_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Farmer', required: true, unique: true },
-    top_prices: [{
-        commodity: String,
-        mandi: String,
-        modal_price: String
-    }],
-    last_updated: { type: Date }
+    farmer_id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Farmer' },
+    state: { type: String, required: true },
+    top_prices: [
+        {
+            commodity: { type: String },
+            modal_price: { type: Number }
+        }
+    ],
+    updatedAt: { type: Date, default: Date.now }
 });
 
 const MarketData = mongoose.model('MarketData', marketDataSchema);
