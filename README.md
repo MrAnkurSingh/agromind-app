@@ -5,6 +5,8 @@ It integrates real-time environmental data, market insights, and crop health mon
 
 ---
 
+live link: http://agromind-app.onrender.com/login.html
+
 ## 📌 Table of Contents
 - [✨ Core Features](#-core-features)  
 - [🛠️ Technology Stack & APIs](#️-technology-stack--apis)  
